@@ -1,6 +1,6 @@
 /***************************************************
-    Test code for Syp
-    Last Updated: February 23, 2022
+    Syp's main code (Teensy, SPI)
+    Last Updated: February 25, 2022
  ****************************************************/
 
 // Screen dimensions
@@ -15,7 +15,7 @@
 #define RST_PIN  15  // RST = Reset
 
 // Color definitions
-#define  BLACK           0x0000
+#define BLACK           0x0000
 #define BLUE            0x001F
 #define RED             0xF800
 #define GREEN           0x07E0
@@ -42,44 +42,59 @@ GFXcanvas16 display(128, 128);
 
 float p = 3.1415926;
 int eyeWidth = 45;
-int eyeHeight = 45;
+int eyeHeight = 40;
 int eyeRound = 8;
 int xPos = 10;
 int yPos = 45;
 unsigned long petTime = 0;
 unsigned long blinkTime = 0;
 int blinkInterval = 5000;
+int sensorValue = 0;
 
 void setup(void) {
   Serial.begin(9600);
   Serial.println("starting setup!");
   tft.begin();
-
-  
+  delay(500);
   tft.fillScreen(BLACK);
-  tft.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
-  tft.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound , CYAN);
-  
+  glitch();
+
   Serial.println("setup finished!");
 }
 
 void loop() {
-  if ( millis() - blinkTime > (blinkInterval + random(-1000, 50000))) {
-    if (random(0, 2) == 0) {
+  //glitch();
+  //delay(1000);
+
+  
+//    if ( millis() - blinkTime > (blinkInterval + random(-1000, 50000))) {
+//      if (random(0, 2) == 0) {
+//
+//        blink();
+//        delay(20);
+//        blink();
+//  
+//      } else {
+//        smile();
+//      }
+//      blinkTime = millis();
+//    }
+
+  if (analogRead(A5) == 1023) {
+      pet();
+      blinkTime = millis();
+    } else if ( millis() - blinkTime > (blinkInterval + random(-1000, 50000))) {
       blink();
       delay(20);
       blink();
-
-    } else {
-      smile();
+      blinkTime = millis();
     }
-    blinkTime = millis();
 
-  }
+
 }
 
 void blink() {
-  for (int i = 0; i < eyeHeight / 2; i += 3) {
+  for (int i = 0; i < eyeHeight / 2; i += 5) {
 
     display.fillScreen(BLACK);
     display.fillRoundRect(xPos, yPos + i, eyeWidth, eyeHeight - i * 2, eyeRound, CYAN);
@@ -88,7 +103,7 @@ void blink() {
 
   }
 
-  for (int i = 0; i >= -eyeHeight / 2; i -= 3) {
+  for (int i = 0; i >= -eyeHeight / 2; i -= 5) {
 
     display.fillScreen(BLACK);
     display.fillRoundRect(xPos, yPos + i + eyeHeight / 2, eyeWidth,  - i * 2, eyeRound, CYAN);
@@ -104,7 +119,7 @@ void smile() {
   display.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
   display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
 
-  for (int i = 0; i < eyeHeight / 1.2; i += 4) {
+  for (int i = 0; i < eyeHeight / 1.1; i += 10) {
     display.fillRoundRect(xPos, yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
     display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
     tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
@@ -112,22 +127,19 @@ void smile() {
   }
 
   delay(1000);
+  glitch();
+//drop down eyes after smile, replaced with glitch
+//  for (int i = eyeHeight / 1.2; i >= 0; i -= 7) {
+//    display.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
+//    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
+//
+//    display.fillRoundRect(xPos, yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
+//    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
+//    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+//
+//  }
 
-  for (int i = eyeHeight / 1.2; i >= 0; i -= 4) {
-    display.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
-    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
-
-    display.fillRoundRect(xPos, yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
-    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
-    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
-
-  }
-
-  //reset back to default eyes
-  display.fillScreen(BLACK);
-  display.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
-  display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound , CYAN);
-  tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+   
 }
 
 
@@ -166,12 +178,57 @@ void sleep() {
         display.setCursor(1, 1);
         display.setTextColor(CYAN);
         display.println("ZZZ...");
-
       }
       tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
       delay(100);
     }
     delay(200);
+  }
+}
+
+void glitch() {
+  int rectY = 128;
+  int rectHeight = 6;
+
+  for (int i = 0; i < 128 / 2  ; i += 20) {
+    display.fillScreen(BLACK);
+    display.fillRect(0, rectY - rectHeight - i, 128, rectHeight, CYAN);
+    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+  }
+
+  tft.fillScreen(BLACK);
+  tft.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
+  tft.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound , CYAN);
+}
+
+
+void pet() {
+
+  display.fillScreen(BLACK);
+  display.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
+  display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
+
+   for (int i = 0; i < eyeHeight / 1.1; i += 10) {
+    display.fillRoundRect(xPos, yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
+    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
+    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+
+  }
+Serial.println("Mid-pet");
+ 
+  petTime = millis();
+  Serial.println(sensorValue);
+  while ( (millis() - petTime) < 1000) {
+  Serial.println(sensorValue);
+    sensorValue = analogRead(A5);
+    if (sensorValue >1017) {
+      petTime = millis();
+    }
+    delay(10);
+  }
+
+  if (sensorValue < 1023 ) {
+    glitch();
   }
 
 }
