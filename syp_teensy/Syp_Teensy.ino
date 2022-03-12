@@ -66,29 +66,30 @@ void loop() {
   //glitch();
   //delay(1000);
 
-  
-//    if ( millis() - blinkTime > (blinkInterval + random(-1000, 50000))) {
-//      if (random(0, 2) == 0) {
-//
-//        blink();
-//        delay(20);
-//        blink();
-//  
-//      } else {
-//        smile();
-//      }
-//      blinkTime = millis();
-//    }
+
+  //    if ( millis() - blinkTime > (blinkInterval + random(-1000, 50000))) {
+  //      if (random(0, 2) == 0) {
+  //
+  //        blink();
+  //        delay(20);
+  //        blink();
+  //
+  //      } else {
+  //        smile();
+  //      }
+  //      blinkTime = millis();
+  //    }
 
   if (analogRead(A5) == 1023) {
-      pet();
-      blinkTime = millis();
-    } else if ( millis() - blinkTime > (blinkInterval + random(-1000, 50000))) {
-      blink();
-      delay(20);
-      blink();
-      blinkTime = millis();
-    }
+    pet();
+    blinkTime = millis();
+  } else if ( millis() - blinkTime > (blinkInterval + random(-1000, 50000))) {
+    blink();
+    delay(50);
+    //    blink();
+rotateRect();
+blinkTime = millis();
+  }
 
 
 }
@@ -128,18 +129,18 @@ void smile() {
 
   delay(1000);
   glitch();
-//drop down eyes after smile, replaced with glitch
-//  for (int i = eyeHeight / 1.2; i >= 0; i -= 7) {
-//    display.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
-//    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
-//
-//    display.fillRoundRect(xPos, yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
-//    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
-//    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
-//
-//  }
+  //drop down eyes after smile, replaced with glitch
+  //  for (int i = eyeHeight / 1.2; i >= 0; i -= 7) {
+  //    display.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
+  //    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
+  //
+  //    display.fillRoundRect(xPos, yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
+  //    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
+  //    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+  //
+  //  }
 
-   
+
 }
 
 
@@ -208,20 +209,20 @@ void pet() {
   display.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
   display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
 
-   for (int i = 0; i < eyeHeight / 1.1; i += 10) {
+  for (int i = 0; i < eyeHeight / 1.1; i += 10) {
     display.fillRoundRect(xPos, yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
     display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos - i + eyeHeight, eyeWidth, eyeHeight, eyeRound * 2, BLACK);
     tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
 
   }
-Serial.println("Mid-pet");
- 
+  Serial.println("Mid-pet");
+
   petTime = millis();
   Serial.println(sensorValue);
   while ( (millis() - petTime) < 1000) {
-  Serial.println(sensorValue);
+    Serial.println(sensorValue);
     sensorValue = analogRead(A5);
-    if (sensorValue >1017) {
+    if (sensorValue > 1017) {
       petTime = millis();
     }
     delay(10);
@@ -232,3 +233,65 @@ Serial.println("Mid-pet");
   }
 
 }
+
+void circle() {
+  // turn the rectangle into a circle through each frame
+  int borderRadius = eyeHeight;
+  for (int i = 0; i < 100; i++) {
+    display.fillScreen(BLACK);
+
+    display.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, borderRadius, CYAN);
+    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, borderRadius, CYAN);
+    borderRadius *= 1.001;
+    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+  }
+}
+
+
+// make the eyes move around the screen
+void theRockEyes() {
+  for (int i = 0; i < 10; i += 1) {
+    display.fillScreen(BLACK);
+    display.fillRoundRect(xPos, yPos - i, eyeWidth, eyeHeight, eyeRound, CYAN);
+    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos + i, eyeWidth, eyeHeight, eyeRound, CYAN);
+    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+  }
+}
+
+
+// make the eyes smaller
+void smallerEyes() {
+  int eyeW = eyeWidth;
+  int eyeH = eyeHeight;
+  int eyeR = eyeRound;
+  for (int i = 0; i < 10; i += 1) {
+    display.fillScreen(BLACK);
+    display.fillRoundRect(xPos, yPos, eyeW, eyeH, eyeR, CYAN);
+    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeW), yPos, eyeW, eyeH, eyeR, CYAN);
+    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+    eyeW *= .99;
+    eyeH *= .99;
+    eyeR *= 1.5;
+  }
+
+  delay(2000);
+}
+
+// make the rectangle rotate
+void rotateRect() {
+  int rectY = 128;
+  int rectHeight = 128;
+
+  for (int i = 0; i < 128 / 2  ; i += 20) {
+    display.fillScreen(BLACK);
+    display.fillRect(0, rectY - rectHeight - i, 128, rectHeight, CYAN);
+    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+  }
+
+  tft.fillScreen(BLACK);
+  tft.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, eyeRound, CYAN);
+  tft.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, eyeRound , CYAN);
+}
+
+
+
