@@ -1,41 +1,4 @@
-/*************************************************** 
- *  Test code for Syp
- *  Last Updated: March 11, 2022
- ****************************************************/
-
-// Screen dimensions
-#define SCREEN_WIDTH  128
-#define SCREEN_HEIGHT 128 
-
-// Plug in the display to the Arduino's digital pins
-#define SCLK_PIN 2  // CLK = SPI Clock
-#define MOSI_PIN 3  // DIN = Data Input (MOSI = SPI Master out Slave in)
-#define DC_PIN   4  // DC
-#define CS_PIN   5  // CS = Chip Select
-#define RST_PIN  6  // RST = Reset
-
-// Color definitions
-#define BLACK           0x0000
-#define BLUE            0x001F
-#define RED             0xF800
-#define GREEN           0x07E0
-#define CYAN            0x07FF
-#define MAGENTA         0xF81F
-#define YELLOW          0xFFE0  
-#define WHITE           0xFFFF
-
-// Imports
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1351.h>
-#include <SPI.h>
-
-// Setup
-Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, CS_PIN, DC_PIN, MOSI_PIN, SCLK_PIN, RST_PIN);  
-
-// Variables
-float p = 3.1415926;
-
-void drawBitmap(int16_t x, int16_t y, uint8_t *bitmap, int16_t w, int16_t h, uint16_t color);
+#include <avr/pgmspace.h>
 
 // 'wink-0', 128x128px
 const unsigned char epd_bitmap_wink_0 [] PROGMEM = {
@@ -6327,8 +6290,8 @@ const unsigned char epd_bitmap_wink_47 [] PROGMEM = {
 };
 
 // Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = 99072)
-const int epd_bitmap_allArray_LEN = 48;
-const unsigned char* epd_bitmap_allArray[48] = {
+const int wink_LEN = 48;
+const unsigned char* wink[48] = {
   epd_bitmap_wink_0,
   epd_bitmap_wink_1,
   epd_bitmap_wink_10,
@@ -6378,51 +6341,3 @@ const unsigned char* epd_bitmap_allArray[48] = {
   epd_bitmap_wink_8,
   epd_bitmap_wink_9
 };
-
-
-void setup(void) {
-  Serial.begin(9600);
-  Serial.print("Syp is loading...");
-  tft.begin();
-
-  Serial.println("init");
-
-  uint16_t time = millis();
-  tft.fillRect(0, 0, 128, 128, BLACK);
-  time = millis() - time;
-  
-  Serial.println(time, DEC);
-  delay(500);
-  
-  tft.invert(true);
-  delay(100);
-  tft.invert(false);
-  delay(100);
-
-  tft.fillScreen(BLACK);
-  testdrawtext("hi, my name is syp :)", CYAN);
-  delay(500);
-
-//const int epd_bitmap_allArray_LEN = 48;
-//const unsigned char* epd_bitmap_allArray[48];
-  for (int i = 0; i < epd_bitmap_allArray_LEN; i++) {
-      drawBitmap(0, 0, epd_bitmap_allArray[i], SCREEN_WIDTH, SCREEN_HEIGHT, CYAN);
-  }
-
-  tft.fillScreen(BLACK);
-  testdrawtext("im done winking :)", CYAN);
-  delay(500);
-
-}
-
-void loop() {
-}
-
-/*** --------------- Syp's Functions Go Here --------------- ***/
-
-// 
-void testdrawtext(char *text, uint16_t color) {
-  tft.setCursor(0,0);
-  tft.setTextColor(color);
-  tft.print(text);
-}
