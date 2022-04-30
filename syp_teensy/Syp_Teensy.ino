@@ -32,19 +32,13 @@ const int BUTTON = 2;    // Pushbutton
 #include <SPI.h>
 
 // external animations
-//extern uint8_t* nike[6];
+extern uint8_t* nike[6];
 //extern uint8_t* wink[48];
-//extern uint8_t* cake[5];
-//extern uint8_t* smilee[10];
-//extern uint8_t* face[1];
+extern uint8_t* cake[5];
+extern uint8_t* smilee[10];
+extern uint8_t* face[1];
+extern uint8_t* dizzy[40];
 
-// Option 1: use any pins but a little slower
-// Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, CS_PIN, DC_PIN, MOSI_PIN, SCLK_PIN, RST_PIN);
-
-// Option 2: must use the hardware SPI pins -- we'll come back to this later <<THIS IS WHAT WE HAVE RIGHT NOW>>
-// (for UNO thats sclk = 13 and sid = 11) and pin 10 must be
-// an output. This is much faster - also required if you want
-// to use the microSD card (see the image drawing example)
 Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, &SPI, CS_PIN, DC_PIN, RST_PIN);
 GFXcanvas16 display(128, 128);
 
@@ -75,7 +69,7 @@ int buttonState = 0;
 void loop()
 {
   blink();
-  wink();
+  showThis(dizzy, 40);
 
 //tft.fillScreen(CYAN);
 } 
@@ -83,8 +77,10 @@ void loop()
 // Extra variables
 double iconDimension = 128;
 
-void showThis(uint8_t** animation) {
-    unsigned int animationSize = sizeof(*animation) / sizeof(*animation[0]);
+void showThis(uint8_t** animation, int size) {
+    unsigned int animationSize = size;
+//    unsigned int animationSize = sizeof(animation) / sizeof(animation[0]);
+//    sendText(animationSize);
   
     // loop through the frames
     for (unsigned int i = 0; i < animationSize; i++)
@@ -96,13 +92,13 @@ void showThis(uint8_t** animation) {
     }
 
     // reverse loop
-    for (unsigned int i = animationSize; i > 0; i--)
-    {
-        display.fillScreen(BLACK);
-        display.drawBitmap(0, 0, animation[i-1], iconDimension, iconDimension, CYAN);
-        tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
-        delay(10);
-    }
+//    for (unsigned int i = animationSize; i > 0; i--)
+//    {
+//        display.fillScreen(BLACK);
+//        display.drawBitmap(0, 0, animation[i-1], iconDimension, iconDimension, CYAN);
+//        tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+//        delay(10);
+//    }
     delay(500);
 }
 
