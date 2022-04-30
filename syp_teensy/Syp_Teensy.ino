@@ -38,9 +38,17 @@ extern uint8_t* cake[5];
 extern uint8_t* smilee[10];
 extern uint8_t* face[1];
 extern uint8_t* dizzy[40];
+extern uint8_t* dizzy_start[29];
+extern uint8_t* dizzy_mid[11];
+extern uint8_t* dizzy_end[11];
 
 Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, &SPI, CS_PIN, DC_PIN, RST_PIN);
 GFXcanvas16 display(128, 128);
+
+//Accelerometer
+#include <Wire.h>
+const int MPU = 0x68; // MPU6050 I2C address
+float AccX = 0;
 
 float p = 3.1415926;
 int eyeWidth = 45;  // 30
@@ -59,6 +67,14 @@ void setup(void)
     Serial.println("starting setup!");
     tft.begin();
     delay(500);
+
+    //accelometer
+    Wire.begin();                      // Initialize comunication
+    Wire.beginTransmission(MPU);       // Start communication with MPU6050 // MPU=0x68
+    Wire.write(0x6B);                  // Talk to the register 6B
+    Wire.write(0x00);                  // Make reset - place a 0 into the 6B register
+    Wire.endTransmission(true);        //end the transmission
+    
     tft.fillScreen(BLACK);
     glitch();
     Serial.println("setup finished!");
@@ -68,8 +84,20 @@ int buttonState = 0;
 
 void loop()
 {
-  blink();
-  showThis(dizzy, 40);
+//  Serial.println(readX());
+//  sendText(readX());
+
+  // attempt 1
+//  if (isDizzy()) { 
+//    showThis(dizzy_start, 29);
+//    while (isDizzy()) {
+//      showThis(dizzy_mid, 11);
+//    }
+//    showThis(dizzy_end, 11);
+//  }
+
+  // attempt 2
+  if (isDizzy()) dizzyFunc();
 
 //tft.fillScreen(CYAN);
 } 
@@ -102,6 +130,50 @@ void showThis(uint8_t** animation, int size) {
     delay(500);
 }
 
+bool isDizzy() {
+  float one, two, three, four, five;
+  float th = 0.5;
+  one = readX();
+  delay(10);
+  two = readX();
+  delay(10);
+  three = readX();
+//  delay(10);
+//  four = readX();
+//  delay(10);
+//  five = readX();
+  return abs(one - two) > th and abs(two - three) > th;
+}
+
+void dizzyFunc() {
+    uint8_t** animation = dizzy;
+    unsigned int animationSize = 40;
+    float one, two, three;
+    unsigned int i = 0;
+    float th = 0.13;
+  
+    // loop through the frames
+//    for (unsigned int i = 0; i < animationSize; i++)
+    while (i < animationSize)
+    {
+        display.fillScreen(BLACK);
+        display.drawBitmap(0, 0, animation[i], iconDimension, iconDimension, CYAN);
+        tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+        delay(10);
+        
+        if (i == 24) one = readX();
+        else if (i == 26) two = readX();
+        else if (i == 28) three = readX();
+        else if (i == 29 and abs(one - two) > th and abs(two - three) > th) i = 16;
+        Serial.println(i);
+        Serial.println(one);
+        Serial.println(two);
+        Serial.println(three);
+        
+        i++;
+    }
+
+}
 
 void blink()
 {
@@ -335,4 +407,14 @@ void sendText(String text) {
   tft.setTextColor(CYAN);
   tft.print(text);
   delay(300);
+}
+
+// read the x-axis of the accelerometer
+float readX() {
+  Wire.beginTransmission(MPU);
+  Wire.write(0x3B); // Start with register 0x3B (ACCEL_XOUT_H), 0x3F
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU, 2, true); // Read 6 registers total, each axis value is stored in 2 registers
+  AccX = (int16_t)(Wire.read() << 8 | Wire.read()) / 16384.0; // X-axis value
+  return AccX;
 }
