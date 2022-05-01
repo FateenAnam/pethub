@@ -44,6 +44,7 @@ extern uint8_t *dizzy[40];
 extern uint8_t *dizzy_start[29];
 extern uint8_t *dizzy_mid[11];
 extern uint8_t *dizzy_end[11];
+extern uint8_t *rotate[30];
 
 Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, &SPI, CS_PIN, DC_PIN, RST_PIN);
 GFXcanvas16 display(128, 128);
@@ -51,7 +52,6 @@ GFXcanvas16 display(128, 128);
 // Accelerometer
 #include <Wire.h>
 const int MPU = 0x68; // MPU6050 I2C address
-float AccX = 0;
 
 float p = 3.1415926;
 int eyeWidth = 45;  // 30
@@ -88,7 +88,7 @@ int buttonState = 0;
 void loop()
 {
   //  Serial.println(readX());
-  //  sendText(readX());
+  // sendText("\n       X: " + String(readX()) + "\n\n       Y: " + String(readY()) + "\n\n       Z: " + String(readZ()));
 
   // attempt 1
   //  if (isDizzy()) {
@@ -98,12 +98,19 @@ void loop()
   //    }
   //    showThis(dizzy_end, 11);
   //  }
+  // delay(5000);
+  // smallerEyes();
 
-  // attempt 2
-  if (isDizzy())
-    dizzyFunc();
+  // attempt 1
+  // if (isDizzy())
+  //   dizzyFunc();
 
   // tft.fillScreen(CYAN);
+  blink();
+  delay(100);
+  blink();
+  delay(5000);
+  showThis(rotate, 30);
 }
 
 // Extra variables
@@ -144,11 +151,12 @@ bool isDizzy()
   two = readX();
   delay(10);
   three = readX();
-  //  delay(10);
-  //  four = readX();
-  //  delay(10);
-  //  five = readX();
-  return abs(one - two) > th and abs(two - three) > th;
+  delay(10);
+  four = readX();
+  delay(10);
+  five = readX();
+  return abs(one - two) > th and abs(two - three) > th and
+         abs(three - four) > th and abs(four - five) > th;
 }
 
 void dizzyFunc()
@@ -204,7 +212,6 @@ void blink()
     display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos + i + eyeHeight / 2, eyeWidth, -i * 2, eyeRound, CYAN);
     tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
   }
-  delay(500);
 }
 
 void smile()
@@ -398,12 +405,12 @@ void smallerEyes()
     display.fillRoundRect(xPos, yPos, eyeW, eyeH, eyeR, CYAN);
     display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeW), yPos, eyeW, eyeH, eyeR, CYAN);
     tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
-    eyeW *= .99;
-    eyeH *= .99;
+    eyeW *= .97;
+    eyeH *= .97;
     eyeR *= 1.5;
   }
 
-  delay(2000);
+  delay(5000);
 }
 
 // send text in the screen
@@ -415,7 +422,7 @@ void sendText(String text)
   tft.setCursor(xPos, SCREEN_HEIGHT / 2);
   tft.setTextColor(CYAN);
   tft.print(text);
-  delay(300);
+  delay(10);
 }
 
 // read the x-axis of the accelerometer
@@ -424,7 +431,29 @@ float readX()
   Wire.beginTransmission(MPU);
   Wire.write(0x3B); // Start with register 0x3B (ACCEL_XOUT_H), 0x3F
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU, 2, true);                             // Read 6 registers total, each axis value is stored in 2 registers
-  AccX = (int16_t)(Wire.read() << 8 | Wire.read()) / 16384.0; // X-axis value
+  Wire.requestFrom(MPU, 2, true);                                   // Read 6 registers total, each axis value is stored in 2 registers
+  float AccX = (int16_t)(Wire.read() << 8 | Wire.read()) / 16384.0; // X-axis value
   return AccX;
+}
+
+// read the x-axis of the accelerometer
+float readY()
+{
+  Wire.beginTransmission(MPU);
+  Wire.write(0x3D); // Start with register 0x3D (ACCEL_YOUT_H), 0x3F
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU, 2, true);                                   // Read 6 registers total, each axis value is stored in 2 registers
+  float AccY = (int16_t)(Wire.read() << 8 | Wire.read()) / 16384.0; // Y-axis value
+  return AccY;
+}
+
+// read the x-axis of the accelerometer
+float readZ()
+{
+  Wire.beginTransmission(MPU);
+  Wire.write(0x3F); // Start with register 0x3F (ACCEL_ZOUT_H), 0x3F
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU, 2, true);                                   // Read 6 registers total, each axis value is stored in 2 registers
+  float AccZ = (int16_t)(Wire.read() << 8 | Wire.read()) / 16384.0; // Z-axis value
+  return AccZ;
 }
