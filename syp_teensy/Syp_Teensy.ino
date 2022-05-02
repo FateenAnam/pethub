@@ -1,6 +1,6 @@
 /***************************************************
     Syp's main code (Teensy, SPI)
-    Last Updated: March 16, 2022
+    Last Updated: May 1st, 2022
  ****************************************************/
 
 // Screen dimensions
@@ -65,6 +65,8 @@ int xPos = 10;
 int yPos = 45;
 unsigned long petTime = 0;
 unsigned long blinkTime = 0;
+unsigned long rotationTime = 0;
+int rotationCount = 0;
 int blinkInterval = 5000;
 int sensorValue = 0;
 
@@ -91,20 +93,60 @@ int buttonState = 0;
 
 void loop()
 {
-  // randomly choose a function to run at differenet intervals
-  blink();
-  delay(2000);
-  showThis(rotate, 30);
-  delay(2000);
-  wink();
-  delay(2000);
-  circle();
-  delay(2000);
-  smile();
-  delay(2000);
+//  sideDrop();
+//  dizzyEyes();
+//  if (millis() - rotationTime >= 2000) {
+//    if (rotationCount == 0) {
+//      blink();
+//      delay(20);
+//      blink();
+//      rotationTime = millis();
+//      rotationCount += 1;
+//    } else if (rotationCount == 1) {
+//      showThis(rotate, 30);
+//      glitch();
+//      rotationTime = millis();
+//      rotationCount += 1;
+//    } else if (rotationCount == 2) {
+//      blink();
+//      delay(20);
+//      blink();
+//      rotationTime = millis();
+//      rotationCount += 1;
+//    } else if (rotationCount == 3) {
+//      smile();
+//      rotationTime = millis();
+//      rotationCount += 1;
+//    } else if (rotationCount == 4) {
+//      blink();
+//      delay(20);
+//      blink();
+//      rotationTime = millis();
+//      rotationCount += 1;
+//    } else if (rotationCount == 5) {
+//      circle();
+//      glitch();
+//      rotationTime = millis();
+//      rotationCount += 1;
+//    } else if (rotationCount == 6) {
+//      blink();
+//      delay(20);
+//      blink();
+//      rotationTime = millis();
+//      rotationCount = 0;
+//    }
+//  }
 
-  sideDrop();
-  dizzyEyes();
+//showThis(jon, 1);
+//delay(2000);
+//showThis(ethan, 1);
+//delay(2000);
+//showThis(sybbure, 1);
+//delay(2000);
+if (analogRead(A6)<1000){
+  pet();
+}
+
 }
 
 // Extra variables
@@ -131,26 +173,26 @@ void idleFunctions()
   int function = random(0, 10);
   switch (function)
   {
-  case 0:
-    blink();
-    break;
-  case 1:
-    smile();
-    break;
-  case 2:
-    wink();
-    break;
-  case 3:
-    sleep();
-    break;
-  case 4:
-    glitch();
-    break;
-  case 5:
-    pet();
-    break;
-  default:
-    break;
+    case 0:
+      blink();
+      break;
+    case 1:
+      smile();
+      break;
+    case 2:
+      wink();
+      break;
+    case 3:
+      sleep();
+      break;
+    case 4:
+      glitch();
+      break;
+    case 5:
+      pet();
+      break;
+    default:
+      break;
   }
 }
 
@@ -161,7 +203,7 @@ void sideDrop()
   int side = 0; // 0 = up, 1 = right, 2 = left
   while (1 - abs(readZ()) <= threshold)
   {
-    delay(1000);
+
     if (1 - abs(readZ()) > threshold)
       dropped = true;
 
@@ -180,16 +222,25 @@ void sideDrop()
       dropped = true;
     }
   }
-  if (side == 1)
+  if (side == 1){
     showThis(sideDropRightReverse, 15);
-  else if (side == 2)
+    glitch(); //  REMOVE FOR FINAL CODE
+    rotationTime = millis();
+  }
+  else if (side == 2){
     showThis(sideDropLeftReverse, 15);
+    glitch(); //  REMOVE FOR FINAL CODE
+    rotationTime = millis();
+  }
+
+
+
 }
 
 void dizzyEyes()
 {
   float one, two, three, four, five;
-  float th = 0.5;
+  float th = 0.2;
   one = readX();
   delay(10);
   two = readX();
@@ -202,8 +253,13 @@ void dizzyEyes()
   bool dizzy = abs(one - two) > th and abs(two - three) > th and
                abs(three - four) > th and abs(four - five) > th;
 
-  if (dizzy)
+  if (dizzy){
     dizzyFunc();
+    //  REMOVE FOR FINAL CODE
+    glitch();
+    rotationTime = millis();
+  }
+      
 }
 
 void dizzyFunc()
@@ -399,18 +455,15 @@ void pet()
   while ((millis() - petTime) < 1000)
   {
     Serial.println(sensorValue);
-    sensorValue = analogRead(A5);
-    if (sensorValue > 1017)
+    sensorValue = analogRead(A6);
+    if (sensorValue < 1017)
     {
       petTime = millis();
     }
     delay(10);
   }
 
-  if (sensorValue < 1023)
-  {
-    glitch();
-  }
+  glitch();
 }
 
 void circle()
@@ -425,6 +478,7 @@ void circle()
     display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, borderRadius, CYAN);
     borderRadius *= 1.001;
     tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
+    delay(5);
   }
 }
 
