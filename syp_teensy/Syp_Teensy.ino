@@ -45,6 +45,10 @@ extern uint8_t *dizzy_start[29];
 extern uint8_t *dizzy_mid[11];
 extern uint8_t *dizzy_end[11];
 extern uint8_t *rotate[30];
+extern uint8_t *sideDropRight[39];
+extern uint8_t *sideDropLeft[39];
+extern uint8_t *sideDropRightReverse[15];
+extern uint8_t *sideDropLeftReverse[15];
 
 Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, &SPI, CS_PIN, DC_PIN, RST_PIN);
 GFXcanvas16 display(128, 128);
@@ -87,30 +91,20 @@ int buttonState = 0;
 
 void loop()
 {
-  //  Serial.println(readX());
-  // sendText("\n       X: " + String(readX()) + "\n\n       Y: " + String(readY()) + "\n\n       Z: " + String(readZ()));
-
-  // attempt 1
-  //  if (isDizzy()) {
-  //    showThis(dizzy_start, 29);
-  //    while (isDizzy()) {
-  //      showThis(dizzy_mid, 11);
-  //    }
-  //    showThis(dizzy_end, 11);
-  //  }
-  // delay(5000);
-  // smallerEyes();
-
-  // attempt 1
-  // if (isDizzy())
-  //   dizzyFunc();
-
-  // tft.fillScreen(CYAN);
+  // randomly choose a function to run at differenet intervals
   blink();
-  delay(100);
-  blink();
-  delay(5000);
+  delay(2000);
   showThis(rotate, 30);
+  delay(2000);
+  wink();
+  delay(2000);
+  circle();
+  delay(2000);
+  smile();
+  delay(2000);
+
+  sideDrop();
+  dizzyEyes();
 }
 
 // Extra variables
@@ -119,8 +113,6 @@ double iconDimension = 128;
 void showThis(uint8_t **animation, int size)
 {
   unsigned int animationSize = size;
-  //    unsigned int animationSize = sizeof(animation) / sizeof(animation[0]);
-  //    sendText(animationSize);
 
   // loop through the frames
   for (unsigned int i = 0; i < animationSize; i++)
@@ -130,19 +122,71 @@ void showThis(uint8_t **animation, int size)
     tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
     delay(10);
   }
-
-  // reverse loop
-  //    for (unsigned int i = animationSize; i > 0; i--)
-  //    {
-  //        display.fillScreen(BLACK);
-  //        display.drawBitmap(0, 0, animation[i-1], iconDimension, iconDimension, CYAN);
-  //        tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
-  //        delay(10);
-  //    }
   delay(500);
 }
 
-bool isDizzy()
+void idleFunctions()
+{
+  // functions: blink(), smile(), wink(), sleep(), glitch(), pet(), circle(), smallerEyes()
+  int function = random(0, 10);
+  switch (function)
+  {
+  case 0:
+    blink();
+    break;
+  case 1:
+    smile();
+    break;
+  case 2:
+    wink();
+    break;
+  case 3:
+    sleep();
+    break;
+  case 4:
+    glitch();
+    break;
+  case 5:
+    pet();
+    break;
+  default:
+    break;
+  }
+}
+
+void sideDrop()
+{
+  float threshold = 0.1;
+  bool dropped = false;
+  int side = 0; // 0 = up, 1 = right, 2 = left
+  while (1 - abs(readZ()) <= threshold)
+  {
+    delay(1000);
+    if (1 - abs(readZ()) > threshold)
+      dropped = true;
+
+    if (!dropped)
+    {
+      if (readZ() > 0)
+      {
+        side = 1;
+        showThis(sideDropRight, 39);
+      }
+      else
+      {
+        side = 2;
+        showThis(sideDropLeft, 39);
+      }
+      dropped = true;
+    }
+  }
+  if (side == 1)
+    showThis(sideDropRightReverse, 15);
+  else if (side == 2)
+    showThis(sideDropLeftReverse, 15);
+}
+
+void dizzyEyes()
 {
   float one, two, three, four, five;
   float th = 0.5;
@@ -155,8 +199,11 @@ bool isDizzy()
   four = readX();
   delay(10);
   five = readX();
-  return abs(one - two) > th and abs(two - three) > th and
-         abs(three - four) > th and abs(four - five) > th;
+  bool dizzy = abs(one - two) > th and abs(two - three) > th and
+               abs(three - four) > th and abs(four - five) > th;
+
+  if (dizzy)
+    dizzyFunc();
 }
 
 void dizzyFunc()
@@ -377,18 +424,6 @@ void circle()
     display.fillRoundRect(xPos, yPos, eyeWidth, eyeHeight, borderRadius, CYAN);
     display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos, eyeWidth, eyeHeight, borderRadius, CYAN);
     borderRadius *= 1.001;
-    tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
-  }
-}
-
-// make the eyes move around the screen
-void theRockEyes()
-{
-  for (int i = 0; i < 10; i += 1)
-  {
-    display.fillScreen(BLACK);
-    display.fillRoundRect(xPos, yPos - i, eyeWidth, eyeHeight, eyeRound, CYAN);
-    display.fillRoundRect(SCREEN_WIDTH - (xPos + eyeWidth), yPos + i, eyeWidth, eyeHeight, eyeRound, CYAN);
     tft.drawRGBBitmap(0, 0, display.getBuffer(), 128, 128);
   }
 }
