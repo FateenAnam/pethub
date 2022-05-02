@@ -40,6 +40,7 @@ extern uint8_t *face[1];
 extern uint8_t *ethan[1];
 extern uint8_t *jon[1];
 extern uint8_t *sybbure[1];
+extern uint8_t *familyPhoto[1];
 extern uint8_t *dizzy[40];
 extern uint8_t *dizzy_start[29];
 extern uint8_t *dizzy_mid[11];
@@ -93,60 +94,60 @@ int buttonState = 0;
 
 void loop()
 {
-//  sideDrop();
-//  dizzyEyes();
-//  if (millis() - rotationTime >= 2000) {
-//    if (rotationCount == 0) {
-//      blink();
-//      delay(20);
-//      blink();
-//      rotationTime = millis();
-//      rotationCount += 1;
-//    } else if (rotationCount == 1) {
-//      showThis(rotate, 30);
-//      glitch();
-//      rotationTime = millis();
-//      rotationCount += 1;
-//    } else if (rotationCount == 2) {
-//      blink();
-//      delay(20);
-//      blink();
-//      rotationTime = millis();
-//      rotationCount += 1;
-//    } else if (rotationCount == 3) {
-//      smile();
-//      rotationTime = millis();
-//      rotationCount += 1;
-//    } else if (rotationCount == 4) {
-//      blink();
-//      delay(20);
-//      blink();
-//      rotationTime = millis();
-//      rotationCount += 1;
-//    } else if (rotationCount == 5) {
-//      circle();
-//      glitch();
-//      rotationTime = millis();
-//      rotationCount += 1;
-//    } else if (rotationCount == 6) {
-//      blink();
-//      delay(20);
-//      blink();
-//      rotationTime = millis();
-//      rotationCount = 0;
-//    }
-//  }
+  //  sideDrop();
+  //  dizzyEyes();
+  //  if (millis() - rotationTime >= 2000) {
+  //    if (rotationCount == 0) {
+  //      blink();
+  //      delay(20);
+  //      blink();
+  //      rotationTime = millis();
+  //      rotationCount += 1;
+  //    } else if (rotationCount == 1) {
+  //      showThis(rotate, 30);
+  //      glitch();
+  //      rotationTime = millis();
+  //      rotationCount += 1;
+  //    } else if (rotationCount == 2) {
+  //      blink();
+  //      delay(20);
+  //      blink();
+  //      rotationTime = millis();
+  //      rotationCount += 1;
+  //    } else if (rotationCount == 3) {
+  //      smile();
+  //      rotationTime = millis();
+  //      rotationCount += 1;
+  //    } else if (rotationCount == 4) {
+  //      blink();
+  //      delay(20);
+  //      blink();
+  //      rotationTime = millis();
+  //      rotationCount += 1;
+  //    } else if (rotationCount == 5) {
+  //      circle();
+  //      glitch();
+  //      rotationTime = millis();
+  //      rotationCount += 1;
+  //    } else if (rotationCount == 6) {
+  //      blink();
+  //      delay(20);
+  //      blink();
+  //      rotationTime = millis();
+  //      rotationCount = 0;
+  //    }
+  //  }
 
-//showThis(jon, 1);
-//delay(2000);
-//showThis(ethan, 1);
-//delay(2000);
-//showThis(sybbure, 1);
-//delay(2000);
-if (analogRead(A6)<1000){
-  pet();
-}
-
+  // showThis(jon, 1);
+  // delay(2000);
+  // showThis(ethan, 1);
+  // delay(2000);
+  // showThis(sybbure, 1);
+  // delay(2000);
+  if (analogRead(A6) < 1000)
+  {
+    pet();
+  }
 }
 
 // Extra variables
@@ -173,26 +174,26 @@ void idleFunctions()
   int function = random(0, 10);
   switch (function)
   {
-    case 0:
-      blink();
-      break;
-    case 1:
-      smile();
-      break;
-    case 2:
-      wink();
-      break;
-    case 3:
-      sleep();
-      break;
-    case 4:
-      glitch();
-      break;
-    case 5:
-      pet();
-      break;
-    default:
-      break;
+  case 0:
+    blink();
+    break;
+  case 1:
+    smile();
+    break;
+  case 2:
+    wink();
+    break;
+  case 3:
+    sleep();
+    break;
+  case 4:
+    glitch();
+    break;
+  case 5:
+    pet();
+    break;
+  default:
+    break;
   }
 }
 
@@ -222,19 +223,18 @@ void sideDrop()
       dropped = true;
     }
   }
-  if (side == 1){
+  if (side == 1)
+  {
     showThis(sideDropRightReverse, 15);
     glitch(); //  REMOVE FOR FINAL CODE
     rotationTime = millis();
   }
-  else if (side == 2){
+  else if (side == 2)
+  {
     showThis(sideDropLeftReverse, 15);
     glitch(); //  REMOVE FOR FINAL CODE
     rotationTime = millis();
   }
-
-
-
 }
 
 void dizzyEyes()
@@ -253,13 +253,13 @@ void dizzyEyes()
   bool dizzy = abs(one - two) > th and abs(two - three) > th and
                abs(three - four) > th and abs(four - five) > th;
 
-  if (dizzy){
+  if (dizzy)
+  {
     dizzyFunc();
     //  REMOVE FOR FINAL CODE
     glitch();
     rotationTime = millis();
   }
-      
 }
 
 void dizzyFunc()
